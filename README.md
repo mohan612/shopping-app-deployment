@@ -1,1 +1,1 @@
-# shopping-app-deployment
+# Shoppie App Deployment

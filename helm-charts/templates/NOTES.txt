@@ -1,0 +1,6 @@
+
+1. Your Flask backend is exposed as '{{ include "shoppie-app.fullname" . }}-backend' on port {{ .Values.backend.service.port }}.
+2. Your React frontend is exposed as '{{ include "shoppie-app.fullname" . }}-frontend' on port {{ .Values.frontend.service.port }}.
+3. If ingress is enabled, access your frontend via the configured hostname. Example:
+   "http://shoppie.local/"
+4. Update image.repository in values.yaml to match your built backend and frontend Docker images before deploying!

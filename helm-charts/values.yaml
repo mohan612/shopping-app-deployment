@@ -1,0 +1,90 @@
+# Default values for ecommerce-app
+
+nameOverride: ""
+fullnameOverride: ""
+
+backend:
+  image:
+    repository: acdemoacr001.azurecr.io/shoppie-backend
+    tag: latest
+    pullPolicy: Always
+  service:
+    type: ClusterIP
+    port: 5000
+  # imagePullSecrets:
+  #   - name: acr-secret
+  resources:
+    limits:
+      cpu: 500m
+      memory: 512Mi
+    requests:
+      cpu: 100m
+      memory: 256Mi
+  replicaCount: 1
+
+frontend:
+  image:
+    repository: acdemoacr001.azurecr.io/shoppie-frontend
+    tag: latest
+    pullPolicy: Always
+    # Added platform to ensure correct architecture
+    platform: linux/amd64
+  service:
+    type: ClusterIP
+    port: 8080
+  # imagePullSecrets:
+  #   - name: acr-secret
+  resources:
+    limits:
+      cpu: 500m
+      memory: 512Mi
+    requests:
+      cpu: 100m
+      memory: 256Mi
+  replicaCount: 1
+
+ingress:
+  enabled: true
+  className: "nginx"
+  annotations:
+    # kubernetes.io/ingress.class: nginx
+    # Azure-specific settings
+    service.beta.kubernetes.io/azure-load-balancer-internal: "false"
+    service.beta.kubernetes.io/azure-dns-label-name: "shoppie-app"
+  hosts:
+    - host: shoppie.example.com
+      paths:
+        - path: /
+          pathType: ImplementationSpecific
+          serviceName: frontend
+          servicePort: 8080
+        - path: /api/
+          pathType: ImplementationSpecific
+          serviceName: backend
+          servicePort: 5000
+    # Add an additional rule for the IP-based access as a fallback
+    - host: ""  # Empty host means any host
+      paths:
+        - path: /
+          pathType: ImplementationSpecific
+          serviceName: frontend
+          servicePort: 8080
+        - path: /api/
+          pathType: ImplementationSpecific
+          serviceName: backend
+          servicePort: 5000
+  tls: []
+
+# Add autoscaling configuration
+autoscaling:
+  enabled: true
+  frontend:
+    minReplicas: 2
+    maxReplicas: 10
+    targetCPUUtilizationPercentage: 50
+    targetMemoryUtilizationPercentage: 5
+  backend:
+    minReplicas: 2
+    maxReplicas: 10
+    targetCPUUtilizationPercentage: 50
+    targetMemoryUtilizationPercentage: 5

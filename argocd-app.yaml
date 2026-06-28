@@ -1,0 +1,30 @@
+
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: shoppie-app-deployment
+  namespace: argocd
+spec:
+  project: default
+  source:
+    repoURL: https://github.com/chandra217/shoppie-app-deployment.git
+    targetRevision: HEAD
+    path: helm-charts
+    helm:
+      valueFiles:
+        - values.yaml
+      # Added parameters to ensure proper deployment
+      parameters:
+        - name: "ingress.enabled"
+          value: "true"
+        - name: "ingress.className"
+          value: "nginx"
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: shoppie-app
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
